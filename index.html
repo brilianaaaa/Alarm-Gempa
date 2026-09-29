@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SeismoGuard Pro - Sistem Monitoring Gempa Real-Time</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#f0f9ff', 500: '#0ea5e9', 900: '#0369a1' },
+                        danger: { 500: '#ef4444', 600: '#dc2626' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col">
+
+    <!-- Header Navigation -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-sky-500/10 text-sky-400 rounded-xl border border-sky-500/20">
+                    <i class="fa-solid fa-earth-asia text-2xl animate-pulse"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                        SeismoGuard <span class="text-xs px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">PRO IoT</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Peringatan Dini Gempa Bumi Real-Time</p>
+                </div>
+            </div>
+
+            <!-- Audio Control & Identitas Channel -->
+            <div class="flex items-center gap-3">
+                <div class="hidden sm:flex items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
+                    <span class="text-xs text-slate-400">Channel ID:</span>
+                    <span class="text-xs font-mono text-sky-400">3515120</span>
+                </div>
+                <button id="audioToggleBtn" onclick="toggleAudioSystem()" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg border border-slate-700 transition flex items-center gap-2">
+                    <i class="fa-solid fa-volume-xmark text-red-400" id="audioIcon"></i>
+                    <span id="audioStatusText">Suara: Off</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
+        
+        <!-- Status Banner -->
+        <div id="statusBanner" class="p-5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex flex-col md:flex-row items-center justify-between gap-4 transition-all duration-500">
+            <div class="flex items-center gap-4">
+                <div id="statusIconBg" class="w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl shrink-0">
+                    <i id="statusIcon" class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span id="statusBadge" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">KONDISI AMAN</span>
+                        <span class="text-xs text-slate-400" id="lastUpdatedTime">Terakhir diperbarui: -</span>
+                    </div>
+                    <h2 id="statusTitle" class="text-xl font-bold text-white mt-1">Sistem Dalam Pengawasan Normal</h2>
+                    <p id="statusDesc" class="text-sm text-slate-400">Tidak ada guncangan seismik mencurigakan yang terdeteksi saat ini.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Metric 1 -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 relative overflow-hidden">
+                <div class="flex items-center justify-between text-slate-400 mb-3">
+                    <span class="text-xs font-medium uppercase tracking-wider">Percepatan Getaran</span>
+                    <i class="fa-solid fa-gauge-high text-sky-400"></i>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span id="currentMagnitude" class="text-3xl font-extrabold text-white">0.00</span>
+                    <span class="text-xs text-slate-400">m/s²</span>
+                </div>
+                <div class="mt-3 w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                    <div id="magnitudeBar" class="bg-sky-500 h-1.5 rounded-full transition-all duration-500" style="width: 10%"></div>
+                </div>
+            </div>
+
+            <!-- Metric 2 -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                <div class="flex items-center justify-between text-slate-400 mb-3">
+                    <span class="text-xs font-medium uppercase tracking-wider">Indikator Bahaya</span>
+                    <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span id="dangerCode" class="text-3xl font-extrabold text-emerald-400">0</span>
+                    <span class="text-xs text-slate-400">(0: Aman / 1: Bahaya)</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-3">Ambang batas > 12.5 m/s²</p>
+            </div>
+
+            <!-- Metric 3 -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                <div class="flex items-center justify-between text-slate-400 mb-3">
+                    <span class="text-xs font-medium uppercase tracking-wider">Sumbu Vertikal Z</span>
+                    <i class="fa-solid fa-arrows-up-down text-purple-400"></i>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span id="axisZValue" class="text-3xl font-extrabold text-white">0.00</span>
+                    <span class="text-xs text-slate-400">m/s²</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-3">Orientasi Posisi Sensor</p>
+            </div>
+
+            <!-- Metric 4 -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                <div class="flex items-center justify-between text-slate-400 mb-3">
+                    <span class="text-xs font-medium uppercase tracking-wider">Koneksi Hardware</span>
+                    <i class="fa-solid fa-wifi text-emerald-400"></i>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                    <span class="text-lg font-bold text-white">Wokwi ESP32</span>
+                </div>
+                <p class="text-xs text-emerald-400/90 mt-3 flex items-center gap-1">
+                    <i class="fa-solid fa-circle-check"></i> Terhubung ke ThingSpeak
+                </p>
+            </div>
+        </div>
+
+        <!-- Chart & Protocol Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Historical Chart -->
+            <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-base font-bold text-white">Grafik Historis Getaran Real-Time</h3>
+                        <p class="text-xs text-slate-400">Update berkala setiap 15 detik</p>
+                    </div>
+                    <span class="text-xs font-mono text-sky-400 bg-sky-500/10 px-2.5 py-1 rounded-lg border border-sky-500/20">LIVE STREAM</span>
+                </div>
+                <div class="flex-1 min-h-[300px] relative">
+                    <canvas id="seismicChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Safety Protocols -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-person-shelter text-amber-400"></i> Prosedur Keselamatan
+                </h3>
+                
+                <div class="space-y-3">
+                    <div class="p-3 bg-slate-800/50 rounded-xl border border-slate-700/50 flex items-start gap-3">
+                        <div class="p-2 bg-amber-500/10 text-amber-400 rounded-lg shrink-0">
+                            <i class="fa-solid fa-align-left text-sm"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-200">1. Merunduk (Drop)</h4>
+                            <p class="text-xs text-slate-400">Bertekuk lutut agar tidak terjatuh akibat goncangan mendadak.</p>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-slate-800/50 rounded-xl border border-slate-700/50 flex items-start gap-3">
+                        <div class="p-2 bg-sky-500/10 text-sky-400 rounded-lg shrink-0">
+                            <i class="fa-solid fa-shield text-sm"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-200">2. Berlindung (Cover)</h4>
+                            <p class="text-xs text-slate-400">Lindungi kepala dan leher di bawah meja yang kuat.</p>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-slate-800/50 rounded-xl border border-slate-700/50 flex items-start gap-3">
+                        <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg shrink-0">
+                            <i class="fa-solid fa-hand text-sm"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-200">3. Bertahan (Hold On)</h4>
+                            <p class="text-xs text-slate-400">Pegang erat tempat berlindung hingga getaran mereda.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-sky-950/30 border border-sky-800/40 rounded-xl text-xs text-slate-300">
+                    <p class="font-semibold text-sky-400 mb-1"><i class="fa-solid fa-circle-info"></i> Status Integrasi:</p>
+                    Terhubung langsung ke Public Channel ID <b class="font-mono text-sky-300">3515120</b>.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Floating Chat Notification Container -->
+    <div id="chatToastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-3 max-w-sm w-full px-4 pointer-events-none"></div>
+
+    <!-- JavaScript Engine -->
+    <script>
+        const channelID = "3515120";
+
+        let seismicChart = null;
+        let audioCtx = null;
+        let sirenOscillator = null;
+        let sirenGain = null;
+        let isAudioEnabled = false;
+        let isSirenActive = false;
+        let lastStatus = 0;
+
+        // Inisialisasi Chart.js
+        function initChart() {
+            const ctx = document.getElementById('seismicChart').getContext('2d');
+            seismicChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Magnitude (m/s²)',
+                        data: [],
+                        borderColor: '#0ea5e9',
+                        backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', fontSize: 10 } },
+                        y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b' }, min: 0 }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // Web Audio API Emergency Siren
+        function toggleAudioSystem() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            isAudioEnabled = !isAudioEnabled;
+            const btnText = document.getElementById('audioStatusText');
+            const btnIcon = document.getElementById('audioIcon');
+
+            if (isAudioEnabled) {
+                btnText.innerText = "Suara: On";
+                btnIcon.className = "fa-solid fa-volume-high text-emerald-400";
+                showChatBubble("Sistem suara alarm darurat telah aktif.", "info");
+            } else {
+                btnText.innerText = "Suara: Off";
+                btnIcon.className = "fa-solid fa-volume-xmark text-red-400";
+                stopSiren();
+            }
+        }
+
+        function startSiren() {
+            if (!isAudioEnabled || isSirenActive) return;
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+            sirenOscillator = audioCtx.createOscillator();
+            sirenGain = audioCtx.createGain();
+
+            sirenOscillator.type = 'sawtooth';
+            sirenOscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+
+            let isHigh = false;
+            window.sirenInterval = setInterval(() => {
+                if (sirenOscillator && audioCtx) {
+                    sirenOscillator.frequency.exponentialRampToValueAtTime(
+                        isHigh ? 900 : 500, audioCtx.currentTime + 0.35
+                    );
+                    isHigh = !isHigh;
+                }
+            }, 400);
+
+            sirenGain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            sirenOscillator.connect(sirenGain);
+            sirenGain.connect(audioCtx.destination);
+
+            sirenOscillator.start();
+            isSirenActive = true;
+        }
+
+        function stopSiren() {
+            if (isSirenActive) {
+                if (sirenOscillator) {
+                    sirenOscillator.stop();
+                    sirenOscillator.disconnect();
+                }
+                if (window.sirenInterval) clearInterval(window.sirenInterval);
+                isSirenActive = false;
+            }
+        }
+
+        // Gelembung Chat Notifikasi Realtime
+        function showChatBubble(message, type = 'info') {
+            const container = document.getElementById('chatToastContainer');
+            const bubble = document.createElement('div');
+            
+            const isDanger = (type === 'danger');
+            const bgClass = isDanger 
+                ? 'bg-red-900/90 border-red-500 text-red-100 shadow-red-950/50' 
+                : 'bg-slate-900/90 border-slate-700 text-slate-100 shadow-slate-950/50';
+
+            const iconClass = isDanger ? 'fa-triangle-exclamation text-red-400 animate-bounce' : 'fa-robot text-sky-400';
+
+            bubble.className = `pointer-events-auto flex items-start gap-3 p-4 rounded-2xl border backdrop-blur-md shadow-2xl transition-all duration-500 transform translate-y-8 opacity-0 ${bgClass}`;
+            
+            bubble.innerHTML = `
+                <div class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center shrink-0 border border-slate-700 mt-0.5">
+                    <i class="fa-solid ${iconClass}"></i>
+                </div>
+                <div class="flex-1 text-xs">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="font-bold text-sky-400 uppercase tracking-wider">SeismoBot</span>
+                        <span class="text-[10px] text-slate-400">${new Date().toLocaleTimeString()}</span>
+                    </div>
+                    <p class="leading-relaxed">${message}</p>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            `;
+
+            container.appendChild(bubble);
+
+            setTimeout(() => bubble.classList.remove('translate-y-8', 'opacity-0'), 50);
+
+            if (!isDanger) {
+                setTimeout(() => {
+                    bubble.classList.add('opacity-0', 'translate-y-4');
+                    setTimeout(() => bubble.remove(), 500);
+                }, 8000);
+            }
+        }
+
+        // Ambil Data ThingSpeak Public
+        async function fetchThingSpeakData() {
+            const url = `https://api.thingspeak.com/channels/${channelID}/feeds.json?results=15`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                const feeds = data.feeds;
+
+                if (feeds && feeds.length > 0) {
+                    const latest = feeds[feeds.length - 1];
+                    const magnitude = parseFloat(latest.field1 || 0).toFixed(2);
+                    const statusVal = parseInt(latest.field2 || 0);
+                    const axisZ = parseFloat(latest.field3 || 0).toFixed(2);
+
+                    // Update UI Metrics
+                    document.getElementById('currentMagnitude').innerText = magnitude;
+                    document.getElementById('dangerCode').innerText = statusVal;
+                    document.getElementById('axisZValue').innerText = axisZ;
+                    document.getElementById('lastUpdatedTime').innerText = `Terakhir diperbarui: ${new Date(latest.created_at).toLocaleTimeString()}`;
+
+                    // Update Progress Bar
+                    const barPercent = Math.min((magnitude / 25) * 100, 100);
+                    document.getElementById('magnitudeBar').style.width = `${barPercent}%`;
+
+                    // Update Chart Data
+                    const times = feeds.map(f => new Date(f.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}));
+                    const values = feeds.map(f => parseFloat(f.field1 || 0));
+                    
+                    seismicChart.data.labels = times;
+                    seismicChart.data.datasets[0].data = values;
+                    seismicChart.update();
+
+                    // Evaluasi Status Bahaya
+                    updateSystemStatus(statusVal, magnitude);
+                }
+            } catch (err) {
+                console.error("Gagal menarik data dari ThingSpeak:", err);
+            }
+        }
+
+        function updateSystemStatus(status, magnitude) {
+            const banner = document.getElementById('statusBanner');
+            const iconBg = document.getElementById('statusIconBg');
+            const icon = document.getElementById('statusIcon');
+            const badge = document.getElementById('statusBadge');
+            const title = document.getElementById('statusTitle');
+            const desc = document.getElementById('statusDesc');
+            const dangerCode = document.getElementById('dangerCode');
+
+            if (status === 1) {
+                // BAHAYA
+                banner.className = "p-5 rounded-2xl bg-red-950/60 border border-red-500/50 flex flex-col md:flex-row items-center justify-between gap-4 transition-all duration-500 animate-pulse";
+                iconBg.className = "w-14 h-14 rounded-2xl bg-red-500/20 text-red-400 flex items-center justify-center text-2xl shrink-0";
+                icon.className = "fa-solid fa-triangle-exclamation animate-bounce";
+                badge.className = "text-xs font-semibold px-2.5 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/30";
+                badge.innerText = "PERINGATAN BAHAYA";
+                title.innerText = "🚨 GEMPA BUMI TERDETEKSI!";
+                desc.innerText = `Guncangan seismik terdeteksi sebesar ${magnitude} m/s². Segera berlindung dan evakuasi!`;
+                dangerCode.className = "text-3xl font-extrabold text-red-500";
+
+                startSiren();
+
+                if (lastStatus !== 1) {
+                    showChatBubble(`🚨 <b>PERINGATAN DARURAT:</b> Getaran gempa terdeteksi mencapai ${magnitude} m/s²! Harap berlindung di bawah meja yang kuat.`, "danger");
+                }
+            } else {
+                // AMAN
+                banner.className = "p-5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex flex-col md:flex-row items-center justify-between gap-4 transition-all duration-500";
+                iconBg.className = "w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl shrink-0";
+                icon.className = "fa-solid fa-shield-halved";
+                badge.className = "text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                badge.innerText = "KONDISI AMAN";
+                title.innerText = "Sistem Dalam Pengawasan Normal";
+                desc.innerText = "Tidak ada guncangan seismik mencurigakan yang terdeteksi saat ini.";
+                dangerCode.className = "text-3xl font-extrabold text-emerald-400";
+
+                stopSiren();
+
+                if (lastStatus === 1) {
+                    showChatBubble("✅ Kondisi seismik telah kembali normal.", "info");
+                }
+            }
+            lastStatus = status;
+        }
+
+        // On Load Setup
+        window.addEventListener('DOMContentLoaded', () => {
+            initChart();
+            fetchThingSpeakData();
+            setInterval(fetchThingSpeakData, 15000);
+
+            setTimeout(() => {
+                showChatBubble("SeismoGuard Pro terhubung ke Channel 3515120. Klik tombol 'Suara: Off' untuk mengaktifkan sirine.", "info");
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
