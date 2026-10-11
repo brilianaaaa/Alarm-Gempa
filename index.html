@@ -41,15 +41,14 @@
                 </div>
             </div>
 
-            <!-- Kontrol Audio & Identitas Channel -->
-            <div class="flex items-center gap-3 flex-wrap">
-                <div class="hidden sm:flex items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
-                    <span class="text-xs text-slate-400">Channel:</span>
-                    <span class="text-xs font-mono text-sky-400">3515120</span>
-                </div>
+            <!-- Kontrol Audio, Refresh & Identitas Channel -->
+            <div class="flex items-center gap-2.5 flex-wrap">
+                <button onclick="fetchThingSpeakData(true)" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium rounded-lg transition flex items-center gap-2 shadow-md" title="Paksa muat ulang data dari ThingSpeak">
+                    <i class="fa-solid fa-rotate" id="refreshIcon"></i> Muat Ulang Data
+                </button>
                 <button id="audioToggleBtn" onclick="toggleAudioSystem()" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg border border-slate-700 transition flex items-center gap-2 shadow-lg">
                     <i class="fa-solid fa-volume-xmark text-red-400" id="audioIcon"></i>
-                    <span id="audioStatusText">Suara & Notifikasi: Off</span>
+                    <span id="audioStatusText">Suara: Off</span>
                 </button>
             </div>
         </div>
@@ -73,7 +72,7 @@
                     <p id="statusDesc" class="text-sm text-slate-400">Tidak ada guncangan seismik mencurigakan yang terdeteksi saat ini.</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
                 <button onclick="downloadChartSnapshot()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 rounded-xl text-xs font-medium flex items-center gap-2 transition">
                     <i class="fa-solid fa-camera"></i> Unduh Grafik PNG
                 </button>
@@ -134,7 +133,7 @@
                     <span class="text-lg font-bold text-white">Wokwi ESP32</span>
                 </div>
                 <p class="text-xs text-emerald-400/90 mt-3 flex items-center gap-1">
-                    <i class="fa-solid fa-circle-check"></i> ThingSpeak Cloud Active
+                    <i class="fa-solid fa-circle-check"></i> Channel ID: 3515120
                 </p>
             </div>
         </div>
@@ -146,7 +145,7 @@
                 <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                     <div>
                         <h3 class="text-base font-bold text-white">Grafik Historis Getaran Real-Time</h3>
-                        <p class="text-xs text-slate-400">Analisis gelombang seismik telemetri 15 data terakhir</p>
+                        <p class="text-xs text-slate-400">Analisis gelombang seismik telemetri</p>
                     </div>
                     <span class="text-xs font-mono text-sky-400 bg-sky-500/10 px-2.5 py-1 rounded-lg border border-sky-500/20">LIVE STREAM</span>
                 </div>
@@ -196,7 +195,7 @@
             </div>
         </div>
 
-        <!-- NEW: Seismic Incident Log History Section -->
+        <!-- Incident Log History Section -->
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
             <div class="flex flex-wrap items-center justify-between gap-4">
                 <div>
@@ -206,8 +205,8 @@
                     <p class="text-xs text-slate-400">Pencatatan otomatis tanggal, waktu, dan besaran magnitudo saat darurat terdeteksi.</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="exportLogsCSV()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg border border-slate-700 transition flex items-center gap-2">
-                        <i class="fa-solid fa-file-csv text-emerald-400"></i> Ekspor CSV
+                    <button onclick="exportCompleteReport()" class="px-3.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium rounded-lg transition flex items-center gap-2 shadow-md">
+                        <i class="fa-solid fa-file-arrow-down"></i> Ekspor Laporan Lengkap (Grafik & Log)
                     </button>
                     <button onclick="clearLogs()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-red-400 text-xs font-medium rounded-lg border border-slate-700 transition">
                         Bersihkan Log
@@ -292,16 +291,16 @@
             const btnIcon = document.getElementById('audioIcon');
 
             if (isAudioEnabled) {
-                btnText.innerText = "Suara & Notifikasi: On";
+                btnText.innerText = "Suara: On";
                 btnIcon.className = "fa-solid fa-volume-high text-emerald-400";
-                showChatBubble("Sistem pengeras suara darurat & peringatan suara manusia diaktifkan.", "info");
+                showChatBubble("Sistem pengeras suara darurat & peringatan suara tegas diaktifkan.", "info");
                 
                 if (lastStatus === 1) {
                     startSiren();
                     speakWarningVoice();
                 }
             } else {
-                btnText.innerText = "Suara & Notifikasi: Off";
+                btnText.innerText = "Suara: Off";
                 btnIcon.className = "fa-solid fa-volume-xmark text-red-400";
                 stopSiren();
                 showChatBubble("Sistem pengeras suara dinonaktifkan.", "info");
@@ -329,7 +328,6 @@
                 }
             }, 200);
 
-            // Volume keras penuh saat jeda (0.35)
             sirenGain.gain.setValueAtTime(0.35, audioCtx.currentTime);
             sirenOscillator.connect(sirenGain);
             sirenGain.connect(audioCtx.destination);
@@ -338,10 +336,10 @@
             isSirenActive = true;
         }
 
-        // Audio Ducking: Mengatur volume sirine otomatis agar suara manusia sangat dominan
+        // Audio Ducking: Matikan total sirine saat suara manusia berbunyi
         function setSirenVolume(targetVolume) {
             if (sirenGain && audioCtx) {
-                sirenGain.gain.setTargetAtTime(targetVolume, audioCtx.currentTime, 0.08);
+                sirenGain.gain.setTargetAtTime(targetVolume, audioCtx.currentTime, 0.05);
             }
         }
 
@@ -362,7 +360,18 @@
             }
         }
 
-        // Notifikasi Suara Manusia Volume Maksimal dengan Jeda 5 Detik
+        // Pilih Suara Laki-Laki / Tegas Bahasa Indonesia
+        function getIndonesianVoice() {
+            if (!('speechSynthesis' in window)) return null;
+            const voices = window.speechSynthesis.getVoices();
+            let idVoice = voices.find(v => v.lang.includes('id') && (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david') || v.name.toLowerCase().includes('gemma') || v.name.toLowerCase().includes('indonesia')));
+            if (!idVoice) {
+                idVoice = voices.find(v => v.lang.includes('id'));
+            }
+            return idVoice || voices[0];
+        }
+
+        // Notifikasi Suara Manusia (Laki-Laki / Tegas) dengan Jeda 5 Detik
         function speakWarningVoice() {
             if (!isAudioEnabled || lastStatus !== 1) return;
             if (!('speechSynthesis' in window)) return;
@@ -371,17 +380,21 @@
 
             const textAlert = "Gempa Bumi terdeteksi, segera terapkan protokol perlindungan!";
             const utterance = new SpeechSynthesisUtterance(textAlert);
-            utterance.lang = 'id-ID';
-            utterance.rate = 0.90;   // Tempo jelas
-            utterance.pitch = 1.25;  // Nada tinggi mendesak
-            utterance.volume = 1.0;  // Volume maksimum browser
+            
+            const selectedVoice = getIndonesianVoice();
+            if (selectedVoice) utterance.voice = selectedVoice;
 
-            // KETIKA SUARA MANUSIA BERBICARA -> Sirine diturunkan sangat pelan (0.01) agar suara manusia sangat jelas
+            utterance.lang = 'id-ID';
+            utterance.rate = 0.85;   // Tempo tegas dan lambat agar jelas
+            utterance.pitch = 0.8;   // Nada suara lebih rendah (karakter suara laki-laki / berat)
+            utterance.volume = 1.0;  // Volume maksimum
+
+            // KETIKA SUARA MANUSIA BERBICARA -> Sirine dimatikan total (0.0) agar suara manusia terdengar sangat keras dan jelas tanpa terganggu
             utterance.onstart = function() {
-                setSirenVolume(0.01); 
+                setSirenVolume(0.0); 
             };
 
-            // KETIKA SELESAI -> Sirine kembali keras (0.35), lalu tunggu jeda tepat 5 detik
+            // KETIKA SELESAI -> Sirine kembali berbunyi keras (0.35), lalu tunggu jeda tepat 5 detik
             utterance.onend = function() {
                 if (lastStatus === 1 && isAudioEnabled) {
                     setSirenVolume(0.35); 
@@ -402,7 +415,6 @@
                 timeStyle: 'medium'
             });
 
-            // Cek duplikasi log dalam rentang 30 detik agar tidak spam
             const last = earthquakeLogs[0];
             if (last && (new Date() - new Date(timestamp) < 30000)) return;
 
@@ -440,34 +452,82 @@
             showChatBubble("Riwayat log kejadian berhasil dibersihkan.", "info");
         }
 
-        // Ekspor Log ke CSV
-        function exportLogsCSV() {
-            if (earthquakeLogs.length === 0) {
-                showChatBubble("Tidak ada data log kejadian gempa untuk diekspor.", "info");
-                return;
-            }
-            let csv = "Waktu Kejadian,Magnitudo (m/s2),Status,Rekomendasi Tindakan\n";
-            earthquakeLogs.forEach(l => {
-                csv += `"${l.timeStr}",${l.magnitude},"${l.status}","Evakuasi"\n`;
-            });
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        // Ekspor Laporan Lengkap Beserta Gambar Grafik (HTML Report)
+        function exportCompleteReport() {
+            const chartImage = seismicChart ? seismicChart.toBase64Image() : '';
+            const htmlContent = `
+                <!DOCTYPE html>
+                <html lang="id">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Laporan Resmi SeismoGuard Pro</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 30px; color: #1e293b; background: #f8fafc; }
+                        h1 { color: #0284c7; border-bottom: 2px solid #bae6fd; padding-bottom: 10px; }
+                        h2 { margin-top: 30px; color: #334155; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
+                        th, td { border: 1px solid #cbd5e1; padding: 10px 14px; text-align: left; font-size: 13px; }
+                        th { background: #f1f5f9; color: #0f172a; }
+                        .chart-box { margin-top: 15px; text-align: center; background: white; padding: 15px; border: 1px solid #cbd5e1; border-radius: 8px; }
+                        img { max-width: 100%; height: auto; border-radius: 4px; }
+                        .footer { margin-top: 40px; font-size: 11px; color: #64748b; text-align: center; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Laporan Resmi Telemetri & Insiden SeismoGuard Pro</h1>
+                    <p><b>Channel ID:</b> 3515120 | <b>Waktu Cetak Laporan:</b> ${new Date().toLocaleString('id-ID')}</p>
+                    
+                    <h2>Snapshot Grafik Seismik Saat Insiden</h2>
+                    <div class="chart-box">
+                        ${chartImage ? `<img src="${chartImage}" alt="Grafik Seismik">` : '<p>Grafik belum tersedia.</p>'}
+                    </div>
+
+                    <h2>Riwayat Log Kejadian Gempa</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Waktu Kejadian (Tanggal & Jam)</th>
+                                <th>Besaran Getaran</th>
+                                <th>Status Sistem</th>
+                                <th>Protokol Rekomendasi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${earthquakeLogs.length > 0 ? earthquakeLogs.map(l => `
+                                <tr>
+                                    <td>${l.timeStr}</td>
+                                    <td><b>${l.magnitude} m/s²</b></td>
+                                    <td><span style="color: red; font-weight: bold;">${l.status}</span></td>
+                                    <td>Evakuasi & Berlindung di Bawah Meja</td>
+                                </tr>
+                            `).join('') : '<tr><td colspan="4" style="text-align: center; color: #64748b;">Tidak ada catatan gempa pada sesi ini.</td></tr>'}
+                        </tbody>
+                    </table>
+
+                    <div class="footer">
+                        <p>Dokumen ini digenerasi secara otomatis oleh sistem SeismoGuard Pro IoT IoT Monitoring System.</p>
+                    </div>
+                </body>
+                </html>
+            `;
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `SeismoGuard_Incident_Log_${Date.now()}.csv`;
+            a.download = `SeismoGuard_Complete_Report_${Date.now()}.html`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            showChatBubble("File log CSV berhasil diunduh.", "info");
+            showChatBubble("Laporan lengkap beserta grafik visual berhasil diunduh (format HTML, dapat dibuka di browser atau dicetak ke PDF).", "info");
         }
 
-        // Unduh Grafik Snapshot PNG
+        // Unduh Grafik Snapshot PNG Saja
         function downloadChartSnapshot() {
             if (!seismicChart) return;
             const url = seismicChart.toBase64Image();
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Seismic_Telemetry_Chart_${Date.now()}.png`;
+            a.download = `Seismic_Chart_Snapshot_${Date.now()}.png`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -515,12 +575,16 @@
             }
         }
 
-        // Fetch Data ThingSpeak Public
-        async function fetchThingSpeakData() {
-            const url = `https://api.thingspeak.com/channels/${channelID}/feeds.json?results=15`;
+        // Fetch Data ThingSpeak Public (Dengan Anti-Cache & Tombol Refresh Manual)
+        async function fetchThingSpeakData(isManual = false) {
+            const refreshIcon = document.getElementById('refreshIcon');
+            if (refreshIcon && isManual) refreshIcon.classList.add('fa-spin');
+
+            // Tambahkan timestamp acak agar browser tidak membaca dari cache lama
+            const url = `https://api.thingspeak.com/channels/${channelID}/feeds.json?results=15&_=${new Date().getTime()}`;
 
             try {
-                const response = await fetch(url);
+                const response = await fetch(url, { cache: 'no-store' });
                 const data = await response.json();
                 const feeds = data.feeds;
 
@@ -548,11 +612,22 @@
                     seismicChart.data.datasets[0].data = values;
                     seismicChart.update();
 
-                    // Evaluasi Status Bahaya
+                    // Evaluasi Status Bahaya secara instan
                     updateSystemStatus(statusVal, magnitude, latest.created_at);
+
+                    if (isManual) {
+                        showChatBubble("Data terbaru berhasil dimuat ulang dari ThingSpeak.", "info");
+                    }
                 }
             } catch (err) {
                 console.error("Gagal menarik data dari ThingSpeak:", err);
+                if (isManual) {
+                    showChatBubble("Gagal memuat ulang data. Periksa koneksi internet Anda.", "danger");
+                }
+            } finally {
+                if (refreshIcon && isManual) {
+                    setTimeout(() => refreshIcon.classList.remove('fa-spin'), 500);
+                }
             }
         }
 
@@ -606,11 +681,11 @@
         // On Load Setup
         window.addEventListener('DOMContentLoaded', () => {
             initChart();
-            fetchThingSpeakData();
-            setInterval(fetchThingSpeakData, 15000);
+            fetchThingSpeakData(false);
+            setInterval(() => fetchThingSpeakData(false), 15000);
 
             setTimeout(() => {
-                showChatBubble("SeismoGuard Pro Command terhubung ke Channel 3515120. Klik tombol 'Suara & Notifikasi: Off' untuk mengaktifkan sistem.", "info");
+                showChatBubble("SeismoGuard Pro Command terhubung. Klik tombol 'Muat Ulang Data' untuk memperbarui data secara instan.", "info");
             }, 1000);
         });
     </script>
