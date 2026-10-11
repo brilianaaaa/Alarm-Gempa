@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SeismoGuard Pro - Lab Praktikum IoT & Telemetri Seismik</title>
+    <title>SeismoGuard Pro - Sistem Monitoring Gempa Real-Time & Incident Command</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons CDN -->
@@ -35,15 +35,15 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                        SeismoGuard <span class="text-xs px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">CLASSROOM EDITION</span>
+                        SeismoGuard <span class="text-xs px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">PRO COMMAND</span>
                     </h1>
-                    <p class="text-xs text-slate-400">Praktikum Sistem Peringatan Dini IoT Berbasis ESP32</p>
+                    <p class="text-xs text-slate-400">Sistem Peringatan Dini & Telemetri Seismik Real-Time</p>
                 </div>
             </div>
 
             <!-- Kontrol Audio, Refresh & Identitas Channel -->
             <div class="flex items-center gap-2.5 flex-wrap">
-                <button onclick="fetchThingSpeakData(true)" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium rounded-lg transition flex items-center gap-2 shadow-md">
+                <button onclick="fetchThingSpeakData(true)" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium rounded-lg transition flex items-center gap-2 shadow-md" title="Paksa muat ulang data dari ThingSpeak">
                     <i class="fa-solid fa-rotate" id="refreshIcon"></i> Muat Ulang Data
                 </button>
                 <button id="audioToggleBtn" onclick="toggleAudioSystem()" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg border border-slate-700 transition flex items-center gap-2 shadow-lg">
@@ -75,30 +75,6 @@
             <div class="flex items-center gap-2 flex-wrap">
                 <button onclick="downloadChartSnapshot()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 rounded-xl text-xs font-medium flex items-center gap-2 transition">
                     <i class="fa-solid fa-camera"></i> Unduh Grafik PNG
-                </button>
-            </div>
-        </div>
-
-        <!-- NEW: Classroom Demo / Instructor Control Panel -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <div class="p-2 bg-purple-500/10 text-purple-400 rounded-lg border border-purple-500/20">
-                    <i class="fa-solid fa-chalkboard-user"></i>
-                </div>
-                <div>
-                    <h3 class="text-sm font-bold text-white">Mode Simulasi Praktikum Kelas (Demo Panel)</h3>
-                    <p class="text-xs text-slate-400">Uji respons dashboard secara instan tanpa harus menggerakkan hardware fisik.</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-2">
-                <button onclick="triggerDemoState(0)" class="px-3 py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-medium transition">
-                    Simulasi Aman (0)
-                </button>
-                <button onclick="triggerDemoState(1)" class="px-3 py-1.5 bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30 rounded-lg text-xs font-medium transition">
-                    Simulasi Bahaya (1)
-                </button>
-                <button onclick="resetDemoState()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg text-xs font-medium transition">
-                    Kembali ke Live ThingSpeak
                 </button>
             </div>
         </div>
@@ -149,12 +125,12 @@
             <!-- Metric 4 -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
                 <div class="flex items-center justify-between text-slate-400 mb-3">
-                    <span class="text-xs font-medium uppercase tracking-wider">Diagnostik Kelas</span>
-                    <i class="fa-solid fa-signal text-emerald-400"></i>
+                    <span class="text-xs font-medium uppercase tracking-wider">Koneksi Hardware</span>
+                    <i class="fa-solid fa-wifi text-emerald-400"></i>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-                    <span class="text-lg font-bold text-white">RSSI: -65 dBm</span>
+                    <span class="text-lg font-bold text-white">Wokwi ESP32</span>
                 </div>
                 <p class="text-xs text-emerald-400/90 mt-3 flex items-center gap-1">
                     <i class="fa-solid fa-circle-check"></i> Channel ID: 3515120
@@ -162,7 +138,7 @@
             </div>
         </div>
 
-        <!-- Chart & Lab Notes Grid -->
+        <!-- Chart & Safety Protocols Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Historical Chart -->
             <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col">
@@ -178,29 +154,43 @@
                 </div>
             </div>
 
-            <!-- Lab Notes & Group Identity Form -->
+            <!-- Safety Protocols & Emergency Contacts -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between">
-                <div class="space-y-4">
-                    <h3 class="text-base font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-pen-to-square text-sky-400"></i> Lembar Kerja Praktikum (Lab Notes)
+                <div>
+                    <h3 class="text-base font-bold text-white flex items-center gap-2 mb-3">
+                        <i class="fa-solid fa-person-shelter text-amber-400"></i> Prosedur Keselamatan
                     </h3>
-                    <p class="text-xs text-slate-400">Masukkan identitas kelompok dan catatan pengamatan untuk dimasukkan ke laporan ekspor.</p>
                     
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-xs font-medium text-slate-300 mb-1">Nama Kelompok / Praktikan:</label>
-                            <input type="text" id="labGroupName" placeholder="Contoh: Kelompok 1 - Pend. Sains" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-sky-500">
+                    <div class="space-y-2.5">
+                        <div class="p-2.5 bg-slate-800/50 rounded-xl border border-slate-700/50 flex items-start gap-3">
+                            <div class="p-1.5 bg-amber-500/10 text-amber-400 rounded-lg shrink-0 text-xs">1</div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-200">Merunduk (Drop)</h4>
+                                <p class="text-[11px] text-slate-400">Tekuk lutut untuk menghindari jatuh.</p>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-xs font-medium text-slate-300 mb-1">Catatan Kesimpulan Percobaan:</label>
-                            <textarea id="labNotes" rows="3" placeholder="Tuliskan analisis respons sensor terhadap getaran..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-sky-500"></textarea>
+
+                        <div class="p-2.5 bg-slate-800/50 rounded-xl border border-slate-700/50 flex items-start gap-3">
+                            <div class="p-1.5 bg-sky-500/10 text-sky-400 rounded-lg shrink-0 text-xs">2</div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-200">Berlindung (Cover)</h4>
+                                <p class="text-[11px] text-slate-400">Di bawah meja yang kokoh.</p>
+                            </div>
+                        </div>
+
+                        <div class="p-2.5 bg-slate-800/50 rounded-xl border border-slate-700/50 flex items-start gap-3">
+                            <div class="p-1.5 bg-emerald-500/10 text-emerald-400 rounded-lg shrink-0 text-xs">3</div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-200">Bertahan (Hold On)</h4>
+                                <p class="text-[11px] text-slate-400">Pegang erat hingga guncangan berhenti.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="p-3 bg-sky-950/30 border border-sky-800/40 rounded-xl text-xs space-y-1">
-                    <p class="font-bold text-sky-400"><i class="fa-solid fa-circle-info"></i> Info Praktikum:</p>
-                    <p class="text-slate-300">Threshold: <b>12.5 m/s²</b> | Interval Kirim: <b>15 Detik</b></p>
+                <div class="p-3.5 bg-red-950/30 border border-red-900/40 rounded-xl text-xs space-y-1">
+                    <p class="font-bold text-red-400"><i class="fa-solid fa-phone-volume"></i> Kontak Darurat Indonesia:</p>
+                    <p class="text-slate-300">BMKG: <b>196</b> | BNPB: <b>021-29827793</b> | SAR: <b>115</b></p>
                 </div>
             </div>
         </div>
@@ -216,7 +206,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="exportCompleteReport()" class="px-3.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium rounded-lg transition flex items-center gap-2 shadow-md">
-                        <i class="fa-solid fa-file-arrow-down"></i> Ekspor Laporan Lengkap Praktikum (.HTML)
+                        <i class="fa-solid fa-file-arrow-down"></i> Ekspor Laporan Lengkap (Grafik & Log)
                     </button>
                     <button onclick="clearLogs()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-red-400 text-xs font-medium rounded-lg border border-slate-700 transition">
                         Bersihkan Log
@@ -260,7 +250,6 @@
         let lastStatus = 0;
         let speechTimer = null;
         let earthquakeLogs = [];
-        let demoOverrideState = null; // Untuk mode simulasi kelas
 
         // Inisialisasi Chart.js
         function initChart() {
@@ -304,7 +293,7 @@
             if (isAudioEnabled) {
                 btnText.innerText = "Suara: On";
                 btnIcon.className = "fa-solid fa-volume-high text-emerald-400";
-                showChatBubble("Sistem suara alarm & instruksi suara tegas diaktifkan.", "info");
+                showChatBubble("Sistem pengeras suara darurat & peringatan suara tegas diaktifkan.", "info");
                 
                 if (lastStatus === 1) {
                     startSiren();
@@ -314,7 +303,7 @@
                 btnText.innerText = "Suara: Off";
                 btnIcon.className = "fa-solid fa-volume-xmark text-red-400";
                 stopSiren();
-                showChatBubble("Sistem suara dinonaktifkan.", "info");
+                showChatBubble("Sistem pengeras suara dinonaktifkan.", "info");
             }
         }
 
@@ -371,7 +360,7 @@
             }
         }
 
-        // Pilih Suara Tegas / Laki-Laki Bahasa Indonesia
+        // Pilih Suara Laki-Laki / Tegas Bahasa Indonesia
         function getIndonesianVoice() {
             if (!('speechSynthesis' in window)) return null;
             const voices = window.speechSynthesis.getVoices();
@@ -382,7 +371,7 @@
             return idVoice || voices[0];
         }
 
-        // Notifikasi Suara Manusia (Kecepatan Normal, Volume Maksimal 1.0)
+        // Notifikasi Suara Manusia (Laki-Laki / Tegas) dengan Jeda 5 Detik
         function speakWarningVoice() {
             if (!isAudioEnabled || lastStatus !== 1) return;
             if (!('speechSynthesis' in window)) return;
@@ -396,16 +385,16 @@
             if (selectedVoice) utterance.voice = selectedVoice;
 
             utterance.lang = 'id-ID';
-            utterance.rate = 1.0;    // Tempo normal (tidak lambat)
-            utterance.pitch = 1.1;   // Nada tegas dan jelas
-            utterance.volume = 1.0;  // Volume maksimal browser
+            utterance.rate = 0.85;   // Tempo tegas dan lambat agar jelas
+            utterance.pitch = 0.8;   // Nada suara lebih rendah (karakter suara laki-laki / berat)
+            utterance.volume = 1.0;  // Volume maksimum
 
-            // KETIKA SUARA MANUSIA BERBICARA -> Sirine dimatikan total (0.0) agar suara terdengar sangat keras dan jelas
+            // KETIKA SUARA MANUSIA BERBICARA -> Sirine dimatikan total (0.0) agar suara manusia terdengar sangat keras dan jelas tanpa terganggu
             utterance.onstart = function() {
                 setSirenVolume(0.0); 
             };
 
-            // KETIKA SELESAI -> Sirine kembali berbunyi keras (0.35), lalu tunggu jeda 5 detik
+            // KETIKA SELESAI -> Sirine kembali berbunyi keras (0.35), lalu tunggu jeda tepat 5 detik
             utterance.onend = function() {
                 if (lastStatus === 1 && isAudioEnabled) {
                     setSirenVolume(0.35); 
@@ -419,28 +408,6 @@
             window.speechSynthesis.speak(utterance);
         }
 
-        // Demo Panel Kontrol Kelas
-        function triggerDemoState(state) {
-            demoOverrideState = state;
-            const dummyMag = state === 1 ? "18.50" : "9.80";
-            const dummyZ = state === 1 ? "4.20" : "1.02";
-            
-            document.getElementById('currentMagnitude').innerText = dummyMag;
-            document.getElementById('dangerCode').innerText = state;
-            document.getElementById('axisZValue').innerText = dummyZ;
-            document.getElementById('magnitudeBar').style.width = state === 1 ? '85%' : '15%';
-            document.getElementById('lastUpdatedTime').innerText = `Terakhir diperbarui: ${new Date().toLocaleTimeString()} (Mode Simulasi)`;
-
-            updateSystemStatus(state, dummyMag, new Date().toISOString());
-            showChatBubble(`Mode Simulasi Kelas diaktifkan secara manual ke status: <b>${state === 1 ? 'BAHAYA' : 'AMAN'}</b>`, "info");
-        }
-
-        function resetDemoState() {
-            demoOverrideState = null;
-            showChatBubble("Mode simulasi kelas dinonaktifkan. Kembali menyinkronkan data live dari ThingSpeak.", "info");
-            fetchThingSpeakData(true);
-        }
-
         // Logika Pencatatan Kejadian Gempa (Incident Logging)
         function recordEarthquakeLog(magnitude, timestamp) {
             const timeStr = new Date(timestamp).toLocaleString('id-ID', {
@@ -449,7 +416,7 @@
             });
 
             const last = earthquakeLogs[0];
-            if (last && (new Date() - new Date(timestamp) < 30000) && !demoOverrideState) return;
+            if (last && (new Date() - new Date(timestamp) < 30000)) return;
 
             earthquakeLogs.unshift({
                 timeStr: timeStr,
@@ -485,47 +452,37 @@
             showChatBubble("Riwayat log kejadian berhasil dibersihkan.", "info");
         }
 
-        // Ekspor Laporan Lengkap Praktikum (.HTML) Beserta Catatan Kelompok & Grafik
+        // Ekspor Laporan Lengkap Beserta Gambar Grafik (HTML Report)
         function exportCompleteReport() {
-            const groupName = document.getElementById('labGroupName').value || "Kelompok Praktikum Umum";
-            const labNotes = document.getElementById('labNotes').value || "Tidak ada catatan tambahan.";
             const chartImage = seismicChart ? seismicChart.toBase64Image() : '';
-
             const htmlContent = `
                 <!DOCTYPE html>
                 <html lang="id">
                 <head>
                     <meta charset="UTF-8">
-                    <title>Laporan Praktikum IoT - SeismoGuard Pro</title>
+                    <title>Laporan Resmi SeismoGuard Pro</title>
                     <style>
                         body { font-family: Arial, sans-serif; margin: 30px; color: #1e293b; background: #f8fafc; }
                         h1 { color: #0284c7; border-bottom: 2px solid #bae6fd; padding-bottom: 10px; }
-                        h2 { margin-top: 25px; color: #334155; font-size: 16px; }
-                        .meta-box { background: white; padding: 15px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 20px; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; }
+                        h2 { margin-top: 30px; color: #334155; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
                         th, td { border: 1px solid #cbd5e1; padding: 10px 14px; text-align: left; font-size: 13px; }
                         th { background: #f1f5f9; color: #0f172a; }
-                        .chart-box { margin-top: 10px; text-align: center; background: white; padding: 15px; border: 1px solid #cbd5e1; border-radius: 8px; }
+                        .chart-box { margin-top: 15px; text-align: center; background: white; padding: 15px; border: 1px solid #cbd5e1; border-radius: 8px; }
                         img { max-width: 100%; height: auto; border-radius: 4px; }
                         .footer { margin-top: 40px; font-size: 11px; color: #64748b; text-align: center; }
                     </style>
                 </head>
                 <body>
-                    <h1>Laporan Hasil Praktikum Sistem IoT SeismoGuard Pro</h1>
+                    <h1>Laporan Resmi Telemetri & Insiden SeismoGuard Pro</h1>
+                    <p><b>Channel ID:</b> 3515120 | <b>Waktu Cetak Laporan:</b> ${new Date().toLocaleString('id-ID')}</p>
                     
-                    <div class="meta-box">
-                        <p><b>Kelompok / Praktikan:</b> ${groupName}</p>
-                        <p><b>Channel ID ThingSpeak:</b> 3515120</p>
-                        <p><b>Waktu Cetak Laporan:</b> ${new Date().toLocaleString('id-ID')}</p>
-                        <p><b>Catatan Pengamatan:</b> ${labNotes}</p>
-                    </div>
-
-                    <h2>Snapshot Grafik Seismik Real-Time</h2>
+                    <h2>Snapshot Grafik Seismik Saat Insiden</h2>
                     <div class="chart-box">
                         ${chartImage ? `<img src="${chartImage}" alt="Grafik Seismik">` : '<p>Grafik belum tersedia.</p>'}
                     </div>
 
-                    <h2>Log Riwayat Kejadian Darurat</h2>
+                    <h2>Riwayat Log Kejadian Gempa</h2>
                     <table>
                         <thead>
                             <tr>
@@ -541,14 +498,14 @@
                                     <td>${l.timeStr}</td>
                                     <td><b>${l.magnitude} m/s²</b></td>
                                     <td><span style="color: red; font-weight: bold;">${l.status}</span></td>
-                                    <td>Evakuasi & Berlindung</td>
+                                    <td>Evakuasi & Berlindung di Bawah Meja</td>
                                 </tr>
                             `).join('') : '<tr><td colspan="4" style="text-align: center; color: #64748b;">Tidak ada catatan gempa pada sesi ini.</td></tr>'}
                         </tbody>
                     </table>
 
                     <div class="footer">
-                        <p>Dokumen Laporan Praktikum Pembelajaran Pendidikan Sains & IoT.</p>
+                        <p>Dokumen ini digenerasi secara otomatis oleh sistem SeismoGuard Pro IoT IoT Monitoring System.</p>
                     </div>
                 </body>
                 </html>
@@ -557,11 +514,11 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Laporan_Praktikum_SeismoGuard_${Date.now()}.html`;
+            a.download = `SeismoGuard_Complete_Report_${Date.now()}.html`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            showChatBubble("Laporan praktikum lengkap berhasil diunduh (format HTML, siap dicetak ke PDF atau dikumpulkan ke dosen).", "info");
+            showChatBubble("Laporan lengkap beserta grafik visual berhasil diunduh (format HTML, dapat dibuka di browser atau dicetak ke PDF).", "info");
         }
 
         // Unduh Grafik Snapshot PNG Saja
@@ -618,18 +575,12 @@
             }
         }
 
-        // Fetch Data ThingSpeak Public (Dengan Anti-Cache & Override Demo Mode)
+        // Fetch Data ThingSpeak Public (Dengan Anti-Cache & Tombol Refresh Manual)
         async function fetchThingSpeakData(isManual = false) {
             const refreshIcon = document.getElementById('refreshIcon');
             if (refreshIcon && isManual) refreshIcon.classList.add('fa-spin');
 
-            // Jika sedang dalam mode demo kelas, abaikan fetch online
-            if (demoOverrideState !== null) {
-                if (refreshIcon && isManual) setTimeout(() => refreshIcon.classList.remove('fa-spin'), 300);
-                if (isManual) showChatBubble("Sedang dalam Mode Simulasi Kelas. Matikan simulasi untuk kembali ke data live.", "info");
-                return;
-            }
-
+            // Tambahkan timestamp acak agar browser tidak membaca dari cache lama
             const url = `https://api.thingspeak.com/channels/${channelID}/feeds.json?results=15&_=${new Date().getTime()}`;
 
             try {
@@ -661,6 +612,7 @@
                     seismicChart.data.datasets[0].data = values;
                     seismicChart.update();
 
+                    // Evaluasi Status Bahaya secara instan
                     updateSystemStatus(statusVal, magnitude, latest.created_at);
 
                     if (isManual) {
@@ -733,7 +685,7 @@
             setInterval(() => fetchThingSpeakData(false), 15000);
 
             setTimeout(() => {
-                showChatBubble("SeismoGuard Classroom Edition siap digunakan untuk praktikum. Gunakan Demo Panel di atas untuk simulasi presentasi.", "info");
+                showChatBubble("SeismoGuard Pro Command terhubung. Klik tombol 'Muat Ulang Data' untuk memperbarui data secara instan.", "info");
             }, 1000);
         });
     </script>
