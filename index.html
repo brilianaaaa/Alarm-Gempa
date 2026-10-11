@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SeismoGuard Pro - Sistem Monitoring Gempa Real-Time</title>
+    <title>SeismoGuard Pro - Sistem Monitoring Gempa Real-Time & Incident Command</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons CDN -->
@@ -35,16 +35,16 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                        SeismoGuard <span class="text-xs px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">PRO IoT</span>
+                        SeismoGuard <span class="text-xs px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">PRO COMMAND</span>
                     </h1>
-                    <p class="text-xs text-slate-400">Peringatan Dini Gempa Bumi Real-Time</p>
+                    <p class="text-xs text-slate-400">Sistem Peringatan Dini & Telemetri Seismik Real-Time</p>
                 </div>
             </div>
 
-            <!-- Kontrol Suara & Identitas Channel -->
-            <div class="flex items-center gap-3">
+            <!-- Kontrol Audio & Identitas Channel -->
+            <div class="flex items-center gap-3 flex-wrap">
                 <div class="hidden sm:flex items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
-                    <span class="text-xs text-slate-400">Channel ID:</span>
+                    <span class="text-xs text-slate-400">Channel:</span>
                     <span class="text-xs font-mono text-sky-400">3515120</span>
                 </div>
                 <button id="audioToggleBtn" onclick="toggleAudioSystem()" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg border border-slate-700 transition flex items-center gap-2 shadow-lg">
@@ -72,6 +72,11 @@
                     <h2 id="statusTitle" class="text-xl font-bold text-white mt-1">Sistem Dalam Pengawasan Normal</h2>
                     <p id="statusDesc" class="text-sm text-slate-400">Tidak ada guncangan seismik mencurigakan yang terdeteksi saat ini.</p>
                 </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="downloadChartSnapshot()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 rounded-xl text-xs font-medium flex items-center gap-2 transition">
+                    <i class="fa-solid fa-camera"></i> Unduh Grafik PNG
+                </button>
             </div>
         </div>
 
@@ -129,19 +134,19 @@
                     <span class="text-lg font-bold text-white">Wokwi ESP32</span>
                 </div>
                 <p class="text-xs text-emerald-400/90 mt-3 flex items-center gap-1">
-                    <i class="fa-solid fa-circle-check"></i> Terhubung ke ThingSpeak
+                    <i class="fa-solid fa-circle-check"></i> ThingSpeak Cloud Active
                 </p>
             </div>
         </div>
 
-        <!-- Chart & Protocol Grid -->
+        <!-- Chart & Safety Protocols Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Historical Chart -->
             <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col">
-                <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                     <div>
                         <h3 class="text-base font-bold text-white">Grafik Historis Getaran Real-Time</h3>
-                        <p class="text-xs text-slate-400">Update berkala setiap 15 detik</p>
+                        <p class="text-xs text-slate-400">Analisis gelombang seismik telemetri 15 data terakhir</p>
                     </div>
                     <span class="text-xs font-mono text-sky-400 bg-sky-500/10 px-2.5 py-1 rounded-lg border border-sky-500/20">LIVE STREAM</span>
                 </div>
@@ -150,48 +155,82 @@
                 </div>
             </div>
 
-            <!-- Safety Protocols -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
-                <h3 class="text-base font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-person-shelter text-amber-400"></i> Prosedur Keselamatan
-                </h3>
-                
-                <div class="space-y-3">
-                    <div class="p-3 bg-slate-800/50 rounded-xl border border-slate-700/50 flex items-start gap-3">
-                        <div class="p-2 bg-amber-500/10 text-amber-400 rounded-lg shrink-0">
-                            <i class="fa-solid fa-align-left text-sm"></i>
+            <!-- Safety Protocols & Emergency Contacts -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-base font-bold text-white flex items-center gap-2 mb-3">
+                        <i class="fa-solid fa-person-shelter text-amber-400"></i> Prosedur Keselamatan
+                    </h3>
+                    
+                    <div class="space-y-2.5">
+                        <div class="p-2.5 bg-slate-800/50 rounded-xl border border-slate-700/50 flex items-start gap-3">
+                            <div class="p-1.5 bg-amber-500/10 text-amber-400 rounded-lg shrink-0 text-xs">1</div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-200">Merunduk (Drop)</h4>
+                                <p class="text-[11px] text-slate-400">Tekuk lutut untuk menghindari jatuh.</p>
+                            </div>
                         </div>
-                        <div>
-                            <h4 class="text-xs font-bold text-slate-200">1. Merunduk (Drop)</h4>
-                            <p class="text-xs text-slate-400">Bertekuk lutut agar tidak terjatuh akibat goncangan mendadak.</p>
-                        </div>
-                    </div>
 
-                    <div class="p-3 bg-slate-800/50 rounded-xl border border-slate-700/50 flex items-start gap-3">
-                        <div class="p-2 bg-sky-500/10 text-sky-400 rounded-lg shrink-0">
-                            <i class="fa-solid fa-shield text-sm"></i>
+                        <div class="p-2.5 bg-slate-800/50 rounded-xl border border-slate-700/50 flex items-start gap-3">
+                            <div class="p-1.5 bg-sky-500/10 text-sky-400 rounded-lg shrink-0 text-xs">2</div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-200">Berlindung (Cover)</h4>
+                                <p class="text-[11px] text-slate-400">Di bawah meja yang kokoh.</p>
+                            </div>
                         </div>
-                        <div>
-                            <h4 class="text-xs font-bold text-slate-200">2. Berlindung (Cover)</h4>
-                            <p class="text-xs text-slate-400">Lindungi kepala dan leher di bawah meja yang kuat.</p>
-                        </div>
-                    </div>
 
-                    <div class="p-3 bg-slate-800/50 rounded-xl border border-slate-700/50 flex items-start gap-3">
-                        <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg shrink-0">
-                            <i class="fa-solid fa-hand text-sm"></i>
-                        </div>
-                        <div>
-                            <h4 class="text-xs font-bold text-slate-200">3. Bertahan (Hold On)</h4>
-                            <p class="text-xs text-slate-400">Pegang erat tempat berlindung hingga getaran mereda.</p>
+                        <div class="p-2.5 bg-slate-800/50 rounded-xl border border-slate-700/50 flex items-start gap-3">
+                            <div class="p-1.5 bg-emerald-500/10 text-emerald-400 rounded-lg shrink-0 text-xs">3</div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-200">Bertahan (Hold On)</h4>
+                                <p class="text-[11px] text-slate-400">Pegang erat hingga guncangan berhenti.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="p-4 bg-sky-950/30 border border-sky-800/40 rounded-xl text-xs text-slate-300">
-                    <p class="font-semibold text-sky-400 mb-1"><i class="fa-solid fa-circle-info"></i> Status Integrasi:</p>
-                    Terhubung langsung ke Public Channel ID <b class="font-mono text-sky-300">3515120</b>.
+                <div class="p-3.5 bg-red-950/30 border border-red-900/40 rounded-xl text-xs space-y-1">
+                    <p class="font-bold text-red-400"><i class="fa-solid fa-phone-volume"></i> Kontak Darurat Indonesia:</p>
+                    <p class="text-slate-300">BMKG: <b>196</b> | BNPB: <b>021-29827793</b> | SAR: <b>115</b></p>
                 </div>
+            </div>
+        </div>
+
+        <!-- NEW: Seismic Incident Log History Section -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-sky-400"></i> Riwayat & Log Kejadian Gempa (Incident Log)
+                    </h3>
+                    <p class="text-xs text-slate-400">Pencatatan otomatis tanggal, waktu, dan besaran magnitudo saat darurat terdeteksi.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="exportLogsCSV()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg border border-slate-700 transition flex items-center gap-2">
+                        <i class="fa-solid fa-file-csv text-emerald-400"></i> Ekspor CSV
+                    </button>
+                    <button onclick="clearLogs()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-red-400 text-xs font-medium rounded-lg border border-slate-700 transition">
+                        Bersihkan Log
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-800 text-xs text-slate-400 uppercase tracking-wider bg-slate-950/40">
+                            <th class="py-3 px-4 font-semibold">Waktu Kejadian (Tanggal & Jam)</th>
+                            <th class="py-3 px-4 font-semibold">Besaran Getaran</th>
+                            <th class="py-3 px-4 font-semibold">Status Sistem</th>
+                            <th class="py-3 px-4 font-semibold">Protokol Rekomendasi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logTableBody">
+                        <tr>
+                            <td colspan="4" class="text-center py-6 text-slate-500 text-xs">Belum ada catatan gempa tercatat pada sesi ini. Sistem memantau secara real-time.</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </main>
@@ -211,6 +250,7 @@
         let isSirenActive = false;
         let lastStatus = 0;
         let speechTimer = null;
+        let earthquakeLogs = [];
 
         // Inisialisasi Chart.js
         function initChart() {
@@ -234,7 +274,7 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', fontSize: 10 } },
+                        x: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 10 } } },
                         y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b' }, min: 0 }
                     },
                     plugins: { legend: { display: false } }
@@ -242,7 +282,7 @@
             });
         }
 
-        // Toggle Sistem Suara & Notifikasi (Mute / Unmute Button)
+        // Toggle Audio & Notifikasi System
         function toggleAudioSystem() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -254,7 +294,7 @@
             if (isAudioEnabled) {
                 btnText.innerText = "Suara & Notifikasi: On";
                 btnIcon.className = "fa-solid fa-volume-high text-emerald-400";
-                showChatBubble("Sistem suara alarm dramatis dan pengingat suara manusia diaktifkan.", "info");
+                showChatBubble("Sistem pengeras suara darurat & peringatan suara manusia diaktifkan.", "info");
                 
                 if (lastStatus === 1) {
                     startSiren();
@@ -264,11 +304,11 @@
                 btnText.innerText = "Suara & Notifikasi: Off";
                 btnIcon.className = "fa-solid fa-volume-xmark text-red-400";
                 stopSiren();
-                showChatBubble("Sistem suara dan notifikasi dimatikan.", "info");
+                showChatBubble("Sistem pengeras suara dinonaktifkan.", "info");
             }
         }
 
-        // Sirine Alarm Elektrik yang Lebih Dramatis dan Menggelegar
+        // Sirine Alarm Dramatis
         function startSiren() {
             if (!isAudioEnabled || isSirenActive) return;
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -276,7 +316,6 @@
             sirenOscillator = audioCtx.createOscillator();
             sirenGain = audioCtx.createGain();
 
-            // Menggunakan tipe 'sawtooth' dengan range frekuensi tajam (efek sirine evakuasi darurat)
             sirenOscillator.type = 'sawtooth';
             sirenOscillator.frequency.setValueAtTime(450, audioCtx.currentTime);
 
@@ -284,14 +323,14 @@
             window.sirenInterval = setInterval(() => {
                 if (sirenOscillator && audioCtx) {
                     sirenOscillator.frequency.exponentialRampToValueAtTime(
-                        isHigh ? 1200 : 500, audioCtx.currentTime + 0.18
+                        isHigh ? 1300 : 480, audioCtx.currentTime + 0.15
                     );
                     isHigh = !isHigh;
                 }
-            }, 220);
+            }, 200);
 
-            // Volume keras penuh saat standby/jeda (0.3)
-            sirenGain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            // Volume keras penuh saat jeda (0.35)
+            sirenGain.gain.setValueAtTime(0.35, audioCtx.currentTime);
             sirenOscillator.connect(sirenGain);
             sirenGain.connect(audioCtx.destination);
 
@@ -299,10 +338,10 @@
             isSirenActive = true;
         }
 
-        // Fungsi Audio Ducking: Mengatur volume sirine secara dinamis
+        // Audio Ducking: Mengatur volume sirine otomatis agar suara manusia sangat dominan
         function setSirenVolume(targetVolume) {
             if (sirenGain && audioCtx) {
-                sirenGain.gain.setTargetAtTime(targetVolume, audioCtx.currentTime, 0.1);
+                sirenGain.gain.setTargetAtTime(targetVolume, audioCtx.currentTime, 0.08);
             }
         }
 
@@ -323,7 +362,7 @@
             }
         }
 
-        // Notifikasi Suara Manusia Volume Tinggi dengan Jeda 5 Detik
+        // Notifikasi Suara Manusia Volume Maksimal dengan Jeda 5 Detik
         function speakWarningVoice() {
             if (!isAudioEnabled || lastStatus !== 1) return;
             if (!('speechSynthesis' in window)) return;
@@ -333,30 +372,109 @@
             const textAlert = "Gempa Bumi terdeteksi, segera terapkan protokol perlindungan!";
             const utterance = new SpeechSynthesisUtterance(textAlert);
             utterance.lang = 'id-ID';
-            utterance.rate = 0.90;   // Tempo tegas dan jelas
-            utterance.pitch = 1.15;  // Nada suara ditinggikan agar terkesan mendesak/panik
-            utterance.volume = 1.0;  // Volume maksimum untuk suara manusia
+            utterance.rate = 0.90;   // Tempo jelas
+            utterance.pitch = 1.25;  // Nada tinggi mendesak
+            utterance.volume = 1.0;  // Volume maksimum browser
 
-            // KETIKA SUARA MANUSIA MULAI BERBICARA -> Volume sirine dikecilkan (Audio Ducking)
+            // KETIKA SUARA MANUSIA BERBICARA -> Sirine diturunkan sangat pelan (0.01) agar suara manusia sangat jelas
             utterance.onstart = function() {
-                setSirenVolume(0.05); // Sirine jadi sangat pelan agar suara manusia terdengar dominan & jelas
+                setSirenVolume(0.01); 
             };
 
-            // KETIKA SUARA MANUSIA SELESAI -> Volume sirine kembali keras, lalu tunggu jeda 5 detik
+            // KETIKA SELESAI -> Sirine kembali keras (0.35), lalu tunggu jeda tepat 5 detik
             utterance.onend = function() {
                 if (lastStatus === 1 && isAudioEnabled) {
-                    setSirenVolume(0.3); // Sirine kembali berbunyi keras secara dramatis
+                    setSirenVolume(0.35); 
                     
                     speechTimer = setTimeout(() => {
                         speakWarningVoice();
-                    }, 5000); // Jeda tepat 5 detik sebelum suara manusia berulang kembali
+                    }, 5000); // Jeda 5 detik
                 }
             };
 
             window.speechSynthesis.speak(utterance);
         }
 
-        // Gelembung Chat Notifikasi Realtime
+        // Logika Pencatatan Kejadian Gempa (Incident Logging)
+        function recordEarthquakeLog(magnitude, timestamp) {
+            const timeStr = new Date(timestamp).toLocaleString('id-ID', {
+                dateStyle: 'full',
+                timeStyle: 'medium'
+            });
+
+            // Cek duplikasi log dalam rentang 30 detik agar tidak spam
+            const last = earthquakeLogs[0];
+            if (last && (new Date() - new Date(timestamp) < 30000)) return;
+
+            earthquakeLogs.unshift({
+                timeStr: timeStr,
+                magnitude: magnitude,
+                status: "BAHAYA (GEMPA)"
+            });
+
+            renderLogsTable();
+        }
+
+        function renderLogsTable() {
+            const tbody = document.getElementById('logTableBody');
+            if (!tbody) return;
+
+            if (earthquakeLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-slate-500 text-xs">Belum ada catatan gempa tercatat pada sesi ini.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = earthquakeLogs.map(log => `
+                <tr class="border-b border-slate-800/80 hover:bg-slate-800/30 transition">
+                    <td class="py-3 px-4 font-mono text-slate-300 text-xs">${log.timeStr}</td>
+                    <td class="py-3 px-4 font-extrabold text-red-400 text-xs">${log.magnitude} m/s²</td>
+                    <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[10px] font-bold border border-red-500/30">BAHAYA</span></td>
+                    <td class="py-3 px-4 text-slate-300 text-xs">Evakuasi & Berlindung di Bawah Meja</td>
+                </tr>
+            `).join('');
+        }
+
+        function clearLogs() {
+            earthquakeLogs = [];
+            renderLogsTable();
+            showChatBubble("Riwayat log kejadian berhasil dibersihkan.", "info");
+        }
+
+        // Ekspor Log ke CSV
+        function exportLogsCSV() {
+            if (earthquakeLogs.length === 0) {
+                showChatBubble("Tidak ada data log kejadian gempa untuk diekspor.", "info");
+                return;
+            }
+            let csv = "Waktu Kejadian,Magnitudo (m/s2),Status,Rekomendasi Tindakan\n";
+            earthquakeLogs.forEach(l => {
+                csv += `"${l.timeStr}",${l.magnitude},"${l.status}","Evakuasi"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `SeismoGuard_Incident_Log_${Date.now()}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showChatBubble("File log CSV berhasil diunduh.", "info");
+        }
+
+        // Unduh Grafik Snapshot PNG
+        function downloadChartSnapshot() {
+            if (!seismicChart) return;
+            const url = seismicChart.toBase64Image();
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Seismic_Telemetry_Chart_${Date.now()}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showChatBubble("Snapshot grafik seismik berhasil diunduh sebagai gambar PNG.", "info");
+        }
+
+        // Gelembung Chat Notifikasi
         function showChatBubble(message, type = 'info') {
             const container = document.getElementById('chatToastContainer');
             const bubble = document.createElement('div');
@@ -387,7 +505,6 @@
             `;
 
             container.appendChild(bubble);
-
             setTimeout(() => bubble.classList.remove('translate-y-8', 'opacity-0'), 50);
 
             if (!isDanger) {
@@ -398,7 +515,7 @@
             }
         }
 
-        // Ambil Data ThingSpeak Public
+        // Fetch Data ThingSpeak Public
         async function fetchThingSpeakData() {
             const url = `https://api.thingspeak.com/channels/${channelID}/feeds.json?results=15`;
 
@@ -432,14 +549,14 @@
                     seismicChart.update();
 
                     // Evaluasi Status Bahaya
-                    updateSystemStatus(statusVal, magnitude);
+                    updateSystemStatus(statusVal, magnitude, latest.created_at);
                 }
             } catch (err) {
                 console.error("Gagal menarik data dari ThingSpeak:", err);
             }
         }
 
-        function updateSystemStatus(status, magnitude) {
+        function updateSystemStatus(status, magnitude, timestamp) {
             const banner = document.getElementById('statusBanner');
             const iconBg = document.getElementById('statusIconBg');
             const icon = document.getElementById('statusIcon');
@@ -460,9 +577,11 @@
                 dangerCode.className = "text-3xl font-extrabold text-red-500";
 
                 startSiren();
+                recordEarthquakeLog(magnitude, timestamp);
+
                 if (lastStatus !== 1) {
-                    speakWarningVoice(); // Mulai suara peringatan berulang dengan jeda 5 detik
-                    showChatBubble(`🚨 <b>PERINGATAN DARURAT:</b> Getaran gempa terdeteksi mencapai ${magnitude} m/s²! Harap berlindung di bawah meja yang kuat.`, "danger");
+                    speakWarningVoice(); 
+                    showChatBubble(`🚨 <b>PERINGATAN DARURAT:</b> Getaran gempa tercatat ${magnitude} m/s²! Harap berlindung di bawah meja yang kuat.`, "danger");
                 }
             } else {
                 // AMAN
@@ -475,7 +594,7 @@
                 desc.innerText = "Tidak ada guncangan seismik mencurigakan yang terdeteksi saat ini.";
                 dangerCode.className = "text-3xl font-extrabold text-emerald-400";
 
-                stopSiren(); // Hentikan total sirine dan suara manusia
+                stopSiren(); 
 
                 if (lastStatus === 1) {
                     showChatBubble("✅ Kondisi seismik telah kembali normal.", "info");
@@ -491,7 +610,7 @@
             setInterval(fetchThingSpeakData, 15000);
 
             setTimeout(() => {
-                showChatBubble("SeismoGuard Pro terhubung ke Channel 3515120. Klik tombol 'Suara & Notifikasi: Off' di atas untuk mengaktifkan alarm dramatis.", "info");
+                showChatBubble("SeismoGuard Pro Command terhubung ke Channel 3515120. Klik tombol 'Suara & Notifikasi: Off' untuk mengaktifkan sistem.", "info");
             }, 1000);
         });
     </script>
