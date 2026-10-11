@@ -210,6 +210,7 @@
         let isAudioEnabled = false;
         let isSirenActive = false;
         let lastStatus = 0;
+        let speechTimer = null;
 
         // Inisialisasi Chart.js
         function initChart() {
@@ -241,7 +242,7 @@
             });
         }
 
-        // Toggle Sistem Suara & Notifikasi Suara Manusia (Mute / Unmute Button)
+        // Toggle Sistem Suara & Notifikasi (Mute / Unmute Button)
         function toggleAudioSystem() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -253,9 +254,8 @@
             if (isAudioEnabled) {
                 btnText.innerText = "Suara & Notifikasi: On";
                 btnIcon.className = "fa-solid fa-volume-high text-emerald-400";
-                showChatBubble("Sistem suara alarm dan notifikasi suara manusia diaktifkan.", "info");
+                showChatBubble("Sistem suara alarm dramatis dan pengingat suara manusia diaktifkan.", "info");
                 
-                // Jika saat tombol ditekan status sudah bahaya, langsung bunyikan
                 if (lastStatus === 1) {
                     startSiren();
                     speakWarningVoice();
@@ -264,12 +264,11 @@
                 btnText.innerText = "Suara & Notifikasi: Off";
                 btnIcon.className = "fa-solid fa-volume-xmark text-red-400";
                 stopSiren();
-                stopWarningVoice();
                 showChatBubble("Sistem suara dan notifikasi dimatikan.", "info");
             }
         }
 
-        // Sirine Elektrik (Web Audio API)
+        // Sirine Alarm Elektrik yang Lebih Dramatis dan Menggelegar
         function startSiren() {
             if (!isAudioEnabled || isSirenActive) return;
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -277,20 +276,22 @@
             sirenOscillator = audioCtx.createOscillator();
             sirenGain = audioCtx.createGain();
 
+            // Menggunakan tipe 'sawtooth' dengan range frekuensi tajam (efek sirine evakuasi darurat)
             sirenOscillator.type = 'sawtooth';
-            sirenOscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+            sirenOscillator.frequency.setValueAtTime(450, audioCtx.currentTime);
 
             let isHigh = false;
             window.sirenInterval = setInterval(() => {
                 if (sirenOscillator && audioCtx) {
                     sirenOscillator.frequency.exponentialRampToValueAtTime(
-                        isHigh ? 900 : 500, audioCtx.currentTime + 0.35
+                        isHigh ? 1200 : 500, audioCtx.currentTime + 0.18
                     );
                     isHigh = !isHigh;
                 }
-            }, 400);
+            }, 220);
 
-            sirenGain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            // Volume keras penuh saat standby/jeda (0.3)
+            sirenGain.gain.setValueAtTime(0.3, audioCtx.currentTime);
             sirenOscillator.connect(sirenGain);
             sirenGain.connect(audioCtx.destination);
 
@@ -298,47 +299,61 @@
             isSirenActive = true;
         }
 
+        // Fungsi Audio Ducking: Mengatur volume sirine secara dinamis
+        function setSirenVolume(targetVolume) {
+            if (sirenGain && audioCtx) {
+                sirenGain.gain.setTargetAtTime(targetVolume, audioCtx.currentTime, 0.1);
+            }
+        }
+
         function stopSiren() {
             if (isSirenActive) {
                 if (sirenOscillator) {
-                    sirenOscillator.stop();
-                    sirenOscillator.disconnect();
+                    try { sirenOscillator.stop(); sirenOscillator.disconnect(); } catch(e){}
                 }
                 if (window.sirenInterval) clearInterval(window.sirenInterval);
                 isSirenActive = false;
             }
+            if (speechTimer) {
+                clearTimeout(speechTimer);
+                speechTimer = null;
+            }
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
         }
 
-        // Fitur Suara Manusia Berulang (Web Speech API)
+        // Notifikasi Suara Manusia Volume Tinggi dengan Jeda 5 Detik
         function speakWarningVoice() {
-            if (!isAudioEnabled) return;
+            if (!isAudioEnabled || lastStatus !== 1) return;
             if (!('speechSynthesis' in window)) return;
 
-            // Hentikan suara sebelumnya agar tidak menumpuk antrean
             window.speechSynthesis.cancel();
 
-            const textAlert = "Gempa Bumi terdeteksi, segera terapkan protokol perlindungan";
+            const textAlert = "Gempa Bumi terdeteksi, segera terapkan protokol perlindungan!";
             const utterance = new SpeechSynthesisUtterance(textAlert);
-            utterance.lang = 'id-ID'; // Bahasa Indonesia
-            utterance.rate = 0.95;    // Kecepatan normal-tegas
-            utterance.pitch = 1.0;    // Nada suara
+            utterance.lang = 'id-ID';
+            utterance.rate = 0.90;   // Tempo tegas dan jelas
+            utterance.pitch = 1.15;  // Nada suara ditinggikan agar terkesan mendesak/panik
+            utterance.volume = 1.0;  // Volume maksimum untuk suara manusia
 
-            // Ketika suara selesai diucapkan, ulang kembali secara otomatis jika status masih bahaya
+            // KETIKA SUARA MANUSIA MULAI BERBICARA -> Volume sirine dikecilkan (Audio Ducking)
+            utterance.onstart = function() {
+                setSirenVolume(0.05); // Sirine jadi sangat pelan agar suara manusia terdengar dominan & jelas
+            };
+
+            // KETIKA SUARA MANUSIA SELESAI -> Volume sirine kembali keras, lalu tunggu jeda 5 detik
             utterance.onend = function() {
                 if (lastStatus === 1 && isAudioEnabled) {
-                    setTimeout(() => {
+                    setSirenVolume(0.3); // Sirine kembali berbunyi keras secara dramatis
+                    
+                    speechTimer = setTimeout(() => {
                         speakWarningVoice();
-                    }, 800); // Jeda 0.8 detik sebelum mengulang kalimat
+                    }, 5000); // Jeda tepat 5 detik sebelum suara manusia berulang kembali
                 }
             };
 
             window.speechSynthesis.speak(utterance);
-        }
-
-        function stopWarningVoice() {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-            }
         }
 
         // Gelembung Chat Notifikasi Realtime
@@ -446,7 +461,7 @@
 
                 startSiren();
                 if (lastStatus !== 1) {
-                    speakWarningVoice(); // Mulai suara peringatan berulang
+                    speakWarningVoice(); // Mulai suara peringatan berulang dengan jeda 5 detik
                     showChatBubble(`🚨 <b>PERINGATAN DARURAT:</b> Getaran gempa terdeteksi mencapai ${magnitude} m/s²! Harap berlindung di bawah meja yang kuat.`, "danger");
                 }
             } else {
@@ -460,8 +475,7 @@
                 desc.innerText = "Tidak ada guncangan seismik mencurigakan yang terdeteksi saat ini.";
                 dangerCode.className = "text-3xl font-extrabold text-emerald-400";
 
-                stopSiren();
-                stopWarningVoice(); // Hentikan suara peringatan
+                stopSiren(); // Hentikan total sirine dan suara manusia
 
                 if (lastStatus === 1) {
                     showChatBubble("✅ Kondisi seismik telah kembali normal.", "info");
@@ -477,7 +491,7 @@
             setInterval(fetchThingSpeakData, 15000);
 
             setTimeout(() => {
-                showChatBubble("SeismoGuard Pro terhubung ke Channel 3515120. Klik tombol 'Suara & Notifikasi: Off' di atas untuk mengaktifkan alarm suara.", "info");
+                showChatBubble("SeismoGuard Pro terhubung ke Channel 3515120. Klik tombol 'Suara & Notifikasi: Off' di atas untuk mengaktifkan alarm dramatis.", "info");
             }, 1000);
         });
     </script>
