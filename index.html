@@ -202,7 +202,7 @@
                     <h3 class="text-base font-bold text-white flex items-center gap-2">
                         <i class="fa-solid fa-clock-rotate-left text-sky-400"></i> Riwayat & Log Kejadian Gempa (Incident Log)
                     </h3>
-                    <p class="text-xs text-slate-400">Pencatatan otomatis tanggal, waktu, dan besaran magnitudo saat darurat terdeteksi.</p>
+                    <p class="text-xs text-slate-400">Pencatatan otomatis tersimpan permanen di browser (Persistent Storage).</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="exportCompleteReport()" class="px-3.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium rounded-lg transition flex items-center gap-2 shadow-md">
@@ -249,7 +249,9 @@
         let isSirenActive = false;
         let lastStatus = 0;
         let speechTimer = null;
-        let earthquakeLogs = [];
+        
+        // Memuat log riwayat dari localStorage secara otomatis (Persistent Storage)
+        let earthquakeLogs = JSON.parse(localStorage.getItem('seismoguard_logs') || '[]');
 
         // Inisialisasi Chart.js
         function initChart() {
@@ -371,7 +373,7 @@
             return idVoice || voices[0];
         }
 
-        // Notifikasi Suara Manusia (Laki-Laki / Tegas) dengan Jeda 5 Detik
+        // Notifikasi Suara Manusia (Tempo Normal = 1.0, Volume Maksimum)
         function speakWarningVoice() {
             if (!isAudioEnabled || lastStatus !== 1) return;
             if (!('speechSynthesis' in window)) return;
@@ -385,11 +387,11 @@
             if (selectedVoice) utterance.voice = selectedVoice;
 
             utterance.lang = 'id-ID';
-            utterance.rate = 0.85;   // Tempo tegas dan lambat agar jelas
-            utterance.pitch = 0.8;   // Nada suara lebih rendah (karakter suara laki-laki / berat)
+            utterance.rate = 1.0;    // Tempo normal (1.0)
+            utterance.pitch = 0.8;   // Nada suara tegas / berat
             utterance.volume = 1.0;  // Volume maksimum
 
-            // KETIKA SUARA MANUSIA BERBICARA -> Sirine dimatikan total (0.0) agar suara manusia terdengar sangat keras dan jelas tanpa terganggu
+            // KETIKA SUARA MANUSIA BERBICARA -> Sirine dimatikan total (0.0) agar suara manusia terdengar sangat jelas
             utterance.onstart = function() {
                 setSirenVolume(0.0); 
             };
@@ -408,7 +410,7 @@
             window.speechSynthesis.speak(utterance);
         }
 
-        // Logika Pencatatan Kejadian Gempa (Incident Logging)
+        // Logika Pencatatan Kejadian Gempa & Simpan ke localStorage
         function recordEarthquakeLog(magnitude, timestamp) {
             const timeStr = new Date(timestamp).toLocaleString('id-ID', {
                 dateStyle: 'full',
@@ -423,6 +425,9 @@
                 magnitude: magnitude,
                 status: "BAHAYA (GEMPA)"
             });
+
+            // Simpan ke localStorage agar permanen
+            localStorage.setItem('seismoguard_logs', JSON.stringify(earthquakeLogs));
 
             renderLogsTable();
         }
@@ -448,8 +453,9 @@
 
         function clearLogs() {
             earthquakeLogs = [];
+            localStorage.removeItem('seismoguard_logs'); // Hapus dari memori persistent storage
             renderLogsTable();
-            showChatBubble("Riwayat log kejadian berhasil dibersihkan.", "info");
+            showChatBubble("Riwayat log kejadian berhasil dibersihkan dari penyimpanan browser.", "info");
         }
 
         // Ekspor Laporan Lengkap Beserta Gambar Grafik (HTML Report)
@@ -505,7 +511,7 @@
                     </table>
 
                     <div class="footer">
-                        <p>Dokumen ini digenerasi secara otomatis oleh sistem SeismoGuard Pro IoT IoT Monitoring System.</p>
+                        <p>Dokumen ini digenerasi secara otomatis oleh sistem SeismoGuard Pro IoT Monitoring System.</p>
                     </div>
                 </body>
                 </html>
@@ -580,7 +586,6 @@
             const refreshIcon = document.getElementById('refreshIcon');
             if (refreshIcon && isManual) refreshIcon.classList.add('fa-spin');
 
-            // Tambahkan timestamp acak agar browser tidak membaca dari cache lama
             const url = `https://api.thingspeak.com/channels/${channelID}/feeds.json?results=15&_=${new Date().getTime()}`;
 
             try {
@@ -681,11 +686,12 @@
         // On Load Setup
         window.addEventListener('DOMContentLoaded', () => {
             initChart();
+            renderLogsTable(); // Render log yang tersimpan di localStorage saat halaman dimuat
             fetchThingSpeakData(false);
             setInterval(() => fetchThingSpeakData(false), 15000);
 
             setTimeout(() => {
-                showChatBubble("SeismoGuard Pro Command terhubung. Klik tombol 'Muat Ulang Data' untuk memperbarui data secara instan.", "info");
+                showChatBubble("SeismoGuard Pro Command terhubung. Riwayat log tersimpan otomatis di browser.", "info");
             }, 1000);
         });
     </script>
